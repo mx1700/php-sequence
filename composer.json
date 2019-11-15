@@ -1,0 +1,10 @@
+{
+    "name": "mx1700/php-sequence",
+    "authors": [
+        {
+            "name": "li.zhaoguang",
+            "email": "li.zhaoguang@immomo.com"
+        }
+    ],
+    "require": {}
+}
