@@ -31,7 +31,7 @@ class SequenceTest extends TestCase
     {
         $this->assertEquals(
             [1, 2, 3, 4],
-            Sequence::of([1, 2])->union([3, 4])->toArray()
+            Sequence::of([1, 2])->concat([3, 4])->toArray()
         );
     }
 
