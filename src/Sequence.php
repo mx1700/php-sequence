@@ -43,7 +43,7 @@ class Sequence implements IteratorAggregate
     public function concat($iterator): self
     {
         $iterator = function () use ($iterator) {
-            foreach ($this->source as $key => $item) {
+            foreach ($this as $key => $item) {
                 yield $item;
             }
 
@@ -61,8 +61,8 @@ class Sequence implements IteratorAggregate
     public function map(Closure $fun): self
     {
         $iterator = function () use ($fun) {
-            foreach ($this->source as $key => $item) {
-                yield $key => $fun($item, $key);
+            foreach ($this as $key => $item) {
+                yield $fun($item, $key);
             }
         };
         return new self($iterator());
@@ -74,7 +74,7 @@ class Sequence implements IteratorAggregate
      */
     public function each(Closure $action)
     {
-        foreach ($this->source as $key => $val) {
+        foreach ($this as $key => $val) {
             $action($val, $key);
         }
     }
@@ -86,7 +86,7 @@ class Sequence implements IteratorAggregate
     public function filter(Closure $fun): self
     {
         $iterator = function () use ($fun) {
-            foreach ($this->source as $key => $item) {
+            foreach ($this as $key => $item) {
                 if ($fun($item, $key)) {
                     yield $key => $item;
                 }
@@ -107,34 +107,6 @@ class Sequence implements IteratorAggregate
     }
 
     /**
-     * @return Sequence
-     */
-    public function values(): self
-    {
-        $iterator = function () {
-            foreach ($this->source as $item) {
-                yield $item;
-            }
-        };
-
-        return new self($iterator());
-    }
-
-    /**
-     * @return Sequence
-     */
-    public function keys(): self
-    {
-        $iterator = function () {
-            foreach ($this->source as $key => $item) {
-                yield $key;
-            }
-        };
-
-        return new self($iterator());
-    }
-
-    /**
      * @param int $n
      * @return Sequence
      */
@@ -142,7 +114,7 @@ class Sequence implements IteratorAggregate
     {
         $iterator = function () use ($n) {
             $i = 0;
-            foreach ($this->source as $key => $item) {
+            foreach ($this as $key => $item) {
                 if ($i >= $n) {
                     yield $key => $item;
                 }
@@ -161,7 +133,7 @@ class Sequence implements IteratorAggregate
     {
         $iterator = function () use ($count) {
             $i = 1;
-            foreach ($this->source as $key => $item) {
+            foreach ($this as $key => $item) {
                 if ($i > $count) {
                     break;
                 }
@@ -181,7 +153,7 @@ class Sequence implements IteratorAggregate
     {
         $iterator = function () use ($selector) {
             $exists = [];
-            foreach ($this->source as $key => $val) {
+            foreach ($this as $key => $val) {
                 $k = $selector($val, $key);
                 if (!isset($exists[$k])) {
                     $exists[$k] = true;
@@ -199,7 +171,7 @@ class Sequence implements IteratorAggregate
      */
     public function sortWith(Closure $comparator)
     {
-        $list = iterator_to_array($this->source, false);
+        $list = iterator_to_array($this, false);
         usort($list, $comparator);
         return new self($list);
     }
@@ -239,11 +211,7 @@ class Sequence implements IteratorAggregate
      */
     public function toArray(): array
     {
-        $result = [];
-        foreach ($this->source as $key => $item) {
-            $result[$key] = $item;
-        }
-        return $result;
+        return iterator_to_array($this, false);
     }
 
     /**
@@ -292,7 +260,7 @@ class Sequence implements IteratorAggregate
             return $this->filter($fun)->last();
         }
 
-        foreach ($this->source as $item) {
+        foreach ($this as $item) {
             $r = $item;
         }
 
@@ -313,7 +281,7 @@ class Sequence implements IteratorAggregate
             return $this->filter($fun)->lastOrNull();
         }
 
-        foreach ($this->source as $item) {
+        foreach ($this as $item) {
             $r = $item;
         }
 
@@ -332,7 +300,7 @@ class Sequence implements IteratorAggregate
     public function reduce(Closure $action, $initial = null)
     {
         $result = $initial;
-        foreach ($this->source as $key => $value) {
+        foreach ($this as $key => $value) {
             $result = $action($result, $value, $key);
         }
         return $result;
@@ -345,7 +313,7 @@ class Sequence implements IteratorAggregate
     public function flatMap(Closure $action): self
     {
         $iterator = function () use ($action) {
-            foreach ($this->source as $key => $value) {
+            foreach ($this as $key => $value) {
                 $list = $action($value, $key);
                 if ($list) {
                     foreach ($list as $item) {
@@ -365,7 +333,7 @@ class Sequence implements IteratorAggregate
     public function product($iterator)
     {
         $iterator = function () use($iterator) {
-            foreach ($this->source as $item) {
+            foreach ($this as $item) {
                 foreach ($iterator as $item2) {
                     yield [$item, $item2];
                 }
@@ -381,7 +349,7 @@ class Sequence implements IteratorAggregate
      */
     public function all(Closure $action): bool
     {
-        foreach ($this->source as $key => $value) {
+        foreach ($this as $key => $value) {
             if (!$action($value, $key)) {
                 return false;
             }
@@ -395,7 +363,7 @@ class Sequence implements IteratorAggregate
      */
     public function any(Closure $action): bool
     {
-        foreach ($this->source as $key => $value) {
+        foreach ($this as $key => $value) {
             if ($action($value, $key)) {
                 return true;
             }
@@ -413,7 +381,7 @@ class Sequence implements IteratorAggregate
             return $this->filter($action)->count();
         }
 
-        return iterator_count($this->source);
+        return iterator_count($this);
     }
 
     /**
@@ -423,7 +391,7 @@ class Sequence implements IteratorAggregate
     public function groupBy(Closure $action): Sequence
     {
         $result = [];
-        foreach ($this->source as $key => $item) {
+        foreach ($this as $key => $item) {
             $key = $action($item, $key);
             $result[$key][] = $item;
         }
@@ -440,7 +408,7 @@ class Sequence implements IteratorAggregate
     public function join($out, Closure $outKeySelector, Closure $innerKeySelector, Closure $resultMap)
     {
         $iterator = function () use ($out, $outKeySelector, $innerKeySelector, $resultMap) {
-            foreach ($this->source as $key => $inner) {
+            foreach ($this as $key => $inner) {
                 $innerKey = $innerKeySelector($inner, $key);
                 $s = self::of($out)->filter(function ($out, $outKey) use ($innerKey, $outKeySelector) {
                     $outKey1 = $outKeySelector($out, $outKey);
@@ -459,7 +427,7 @@ class Sequence implements IteratorAggregate
 
     public function leftJoin($out, Closure $outKeySelector, Closure $innerKeySelector, Closure $resultMap) {
         $iterator = function () use ($out, $outKeySelector, $innerKeySelector, $resultMap) {
-            foreach ($this->source as $key => $inner) {
+            foreach ($this as $key => $inner) {
                 $innerKey = $innerKeySelector($inner, $key);
                 $s = self::of($out)->filter(function ($out, $outKey) use ($innerKey, $outKeySelector) {
                     $outKey1 = $outKeySelector($out, $outKey);
@@ -492,7 +460,7 @@ class Sequence implements IteratorAggregate
     public function groupJoin($out, Closure $outKeySelector, Closure $innerKeySelector, Closure $resultMap): self
     {
         $iterator = function () use ($out, $outKeySelector, $innerKeySelector, $resultMap) {
-            foreach ($this->source as $key => $inner) {
+            foreach ($this as $key => $inner) {
                 $innerKey = $innerKeySelector($inner, $key);
                 $group = self::of($out)->filter(function ($out, $outKey) use ($innerKey, $outKeySelector) {
                     $outKey1 = $outKeySelector($out, $outKey);
@@ -508,7 +476,7 @@ class Sequence implements IteratorAggregate
 
     public function indexOf(Closure $predicate)
     {
-        foreach ($this->source as $key => $value) {
+        foreach ($this as $key => $value) {
             if ($predicate($value, $key)) {
                 return $key;
             }
@@ -522,7 +490,7 @@ class Sequence implements IteratorAggregate
      */
     public function sum()
     {
-        return array_sum(iterator_to_array($this->source, false));
+        return array_sum(iterator_to_array($this, false));
     }
 
     public function sumBy()
@@ -532,7 +500,7 @@ class Sequence implements IteratorAggregate
 
     public function max()
     {
-        return call_user_func_array('max', iterator_to_array($this->source, false));
+        return call_user_func_array('max', iterator_to_array($this, false));
     }
 
     public function maxBy()
@@ -547,7 +515,7 @@ class Sequence implements IteratorAggregate
 
     public function min()
     {
-        return call_user_func_array('min', iterator_to_array($this->source, false));
+        return call_user_func_array('min', iterator_to_array($this, false));
     }
 
     public function minBy()
@@ -581,6 +549,8 @@ class Sequence implements IteratorAggregate
      */
     public function getIterator()
     {
-        return $this->source;
+        foreach ($this->source as $item) {
+            yield $item;
+        }
     }
 }

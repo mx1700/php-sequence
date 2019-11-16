@@ -57,7 +57,7 @@ class SequenceTest extends TestCase
     function testFilter()
     {
         $this->assertEquals(
-            [3 => 4, 4 => 5],
+            [4, 5],
             Sequence::of([1, 2, 3, 4, 5])->filter(function ($a) {
                 return $a > 3;
             })->toArray()
@@ -67,34 +67,15 @@ class SequenceTest extends TestCase
     function testFilterNotEmpty()
     {
         $this->assertEquals(
-            [0 => 1, 2 => 2, 3 => 3],
-            Sequence::of([1, null, 2, 3, null])->filterNotEmpty()->toArray()
-        );
-    }
-
-    /**
-     * @depends testFilterNotEmpty
-     */
-    function testValues()
-    {
-        $this->assertEquals(
             [1, 2, 3],
-            Sequence::of([1, null, 2, 3, null])->filterNotEmpty()->values()->toArray()
-        );
-    }
-
-    function testKeys()
-    {
-        $this->assertEquals(
-            [0, 2, 3],
-            Sequence::of([1, null, 2, 3, null])->filterNotEmpty()->keys()->toArray()
+            Sequence::of([1, null, 2, 3, null])->filterNotEmpty()->toArray()
         );
     }
 
     function testSkip()
     {
         $this->assertEquals(
-            [2 => 3, 3 => 4, 4 => 5],
+            [3, 4, 5],
             Sequence::of([1, 2, 3, 4, 5])->skip(2)->toArray()
         );
     }
@@ -110,7 +91,7 @@ class SequenceTest extends TestCase
     function testDistinctBy()
     {
         $this->assertEquals(
-            [0 => 1, 2 => 3, 5 => 6, 8 => 9],
+            [1, 3, 6, 9],
             Sequence::of([1, 2, 3, 4, 5, 6, 7, 8, 9])->distinctBy(function ($a) {
                 return intval($a / 3);
             })->toArray()
@@ -322,7 +303,7 @@ class SequenceTest extends TestCase
     }
 
     /**
-     * @depends testFilter
+     * @depends testFilters
      */
     function testCountFilter()
     {
