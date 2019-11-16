@@ -334,8 +334,8 @@ class SequenceTest extends TestCase
                 1 => [1, 3, 5]
             ],
             Sequence::of([1, 2, 3, 4, 5])->groupBy(function ($a) {
-                return $a['type'];
-            })
+                return $a % 2;
+            })->toArray()
         );
     }
 

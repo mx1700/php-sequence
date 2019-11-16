@@ -339,9 +339,9 @@ class Sequence implements \IteratorAggregate
 
     /**
      * @param Closure $action
-     * @return array
+     * @return Sequence
      */
-    public function flatMap(Closure $action)
+    public function flatMap(Closure $action): self
     {
         $result = [];
         foreach ($this->source as $key => $value) {
@@ -351,7 +351,9 @@ class Sequence implements \IteratorAggregate
             }
         }
 
-        return $result;
+        //todo: lazy
+
+        return new self($result);
     }
 
     /**
@@ -395,14 +397,18 @@ class Sequence implements \IteratorAggregate
         return iterator_count($this->source);
     }
 
-    public function groupBy(Closure $action): array
+    /**
+     * @param Closure $action
+     * @return Sequence
+     */
+    public function groupBy(Closure $action): Sequence
     {
         $result = [];
         foreach ($this->source as $key => $item) {
             $key = $action($item, $key);
             $result[$key][] = $item;
         }
-        return $result;
+        return new self($result);
     }
 
     public function join()
