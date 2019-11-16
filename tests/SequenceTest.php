@@ -47,6 +47,14 @@ class SequenceTest extends TestCase
         );
     }
 
+    function testFilterNotEmpty()
+    {
+        $this->assertEquals(
+            [0 => 1,2 => 2,3 => 3],
+            Sequence::of([1, null, 2, 3, null])->filterNotEmpty()->toArray()
+        );
+    }
+
     function testSkip()
     {
         $this->assertEquals(
@@ -85,6 +93,26 @@ class SequenceTest extends TestCase
             Sequence::of([1, 2, 3, 4, 5])->first(function ($a) {
                 return $a > 1;
             })
+        );
+    }
+
+    function testSortBy()
+    {
+        $this->assertEquals(
+            [0, 1, 2, 3, 4, 5],
+            Sequence::of([1, 3, 2, 4, 5, 0])->sortBy(function ($a) {
+                return $a;
+            })->toArray()
+        );
+    }
+
+    function testSortDescBy()
+    {
+        $this->assertEquals(
+            [5, 4, 3, 2, 1, 0],
+            Sequence::of([1, 3, 2, 4, 5, 0])->sortDescBy(function ($a) {
+                return $a;
+            })->toArray()
         );
     }
 
@@ -237,7 +265,20 @@ class SequenceTest extends TestCase
                 0 => [2, 4],
                 1 => [1, 3, 5]
             ],
-            Sequence::of([1, 2, 3, 4, 5])->groupBy(function($a) { return $a % 2; })
+            Sequence::of([1, 2, 3, 4, 5])->groupBy(function($a) { return $a['type']; })
+        );
+    }
+
+    function testIndexOf()
+    {
+        $this->assertEquals(
+            1,
+            Sequence::of([1, 2, 3, 4, 5])->indexOf(function($a) { return $a == 2; })
+        );
+
+        $this->assertEquals(
+            -1,
+            Sequence::of([1, 2, 3, 4, 5])->indexOf(function($a) { return $a == 0; })
         );
     }
 }

@@ -66,6 +66,11 @@ class Sequence implements \IteratorAggregate
         return new self($iterator());
     }
 
+    public function filterNotEmpty(): self
+    {
+        return $this->filter(function($a) { return !empty($a); });
+    }
+
     /**
      * @param int $n
      * @return Sequence
@@ -103,6 +108,35 @@ class Sequence implements \IteratorAggregate
         };
 
         return new self($iterator());
+    }
+
+    public function sortWith(Closure $comparator)
+    {
+        $list = iterator_to_array($this->source);
+        usort($list, $comparator);
+        return new self($list);
+    }
+
+    public function sortBy(Closure $comparator)
+    {
+        return $this->sortWith(function ($a, $b) use($comparator) {
+            $av = $comparator($a);
+            $bv = $comparator($b);
+            if($av == $bv) return 0;
+            if($av < $bv) return -1;
+            return 1;
+        });
+    }
+
+    public function sortDescBy(Closure $comparator)
+    {
+        return $this->sortWith(function ($a, $b) use($comparator) {
+            $av = $comparator($a);
+            $bv = $comparator($b);
+            if($av == $bv) return 0;
+            if($av < $bv) return 1;
+            return -1;
+        });
     }
 
     /**
@@ -258,6 +292,17 @@ class Sequence implements \IteratorAggregate
             $result[$key][] = $item;
         }
         return $result;
+    }
+
+    public function indexOf(Closure $predicate)
+    {
+        foreach ($this->source as $key => $value) {
+            if($predicate($value, $key)) {
+                return $key;
+            }
+        }
+
+        return -1;
     }
 
     /**
