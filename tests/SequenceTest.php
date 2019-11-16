@@ -1,5 +1,7 @@
 <?php
 namespace mx1700;
+use Exception;
+use OutOfRangeException;
 use PHPUnit\Framework\TestCase;
 include '../vendor/autoload.php';
 
@@ -61,6 +63,9 @@ class SequenceTest extends TestCase
         );
     }
 
+    /**
+     * @throws Exception
+     */
     function testFirst()
     {
         $this->assertEquals(
@@ -69,6 +74,10 @@ class SequenceTest extends TestCase
         );
     }
 
+    /**
+     * @depends testFilter
+     * @throws Exception
+     */
     function testFirstFilter()
     {
         $this->assertEquals(
@@ -79,6 +88,18 @@ class SequenceTest extends TestCase
         );
     }
 
+    /**
+     * @throws Exception
+     * @expectedException OutOfRangeException
+     */
+    function testFirstException()
+    {
+        Sequence::of([1, 2, 3, 4, 5])->first(function ($a) { return $a > 5; });
+    }
+
+    /**
+     * @throws Exception
+     */
     function testLast()
     {
         $this->assertEquals(
@@ -87,6 +108,10 @@ class SequenceTest extends TestCase
         );
     }
 
+    /**
+     * @depends testFilter
+     * @throws Exception
+     */
     function testLastFilter()
     {
         $this->assertEquals(
@@ -95,6 +120,15 @@ class SequenceTest extends TestCase
                 return $a < 5;
             })
         );
+    }
+
+    /**
+     * @throws Exception
+     * @expectedException OutOfRangeException
+     */
+    function testLastException()
+    {
+        Sequence::of([1, 2, 3, 4, 5])->last(function ($a) { return $a > 5; });
     }
 
     function testReduce()
