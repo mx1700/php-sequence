@@ -97,6 +97,19 @@ class SequenceTest extends TestCase
         Sequence::of([1, 2, 3, 4, 5])->first(function ($a) { return $a > 5; });
     }
 
+    function testFirstOrNull()
+    {
+        $this->assertEquals(
+            1,
+            Sequence::of([1, 2, 3, 4, 5])->firstOrNull()
+        );
+
+        $this->assertEquals(
+            null,
+            Sequence::of([])->firstOrNull()
+        );
+    }
+
     /**
      * @throws Exception
      */
@@ -129,6 +142,19 @@ class SequenceTest extends TestCase
     function testLastException()
     {
         Sequence::of([1, 2, 3, 4, 5])->last(function ($a) { return $a > 5; });
+    }
+
+    function testLastOrNull()
+    {
+        $this->assertEquals(
+            5,
+            Sequence::of([1, 2, 3, 4, 5])->lastOrNull()
+        );
+
+        $this->assertEquals(
+            null,
+            Sequence::of([])->lastOrNull()
+        );
     }
 
     function testReduce()

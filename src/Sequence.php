@@ -137,6 +137,23 @@ class Sequence implements \IteratorAggregate
 
     /**
      * @param Closure|null $fun
+     * @return mixed|null
+     */
+    public function firstOrNull(Closure $fun = null)
+    {
+        if ($fun) {
+            return $this->filter($fun)->firstOrNull();
+        }
+
+        if (!$this->source->valid()) {
+            return null;
+        }
+
+        return $this->source->current();
+    }
+
+    /**
+     * @param Closure|null $fun
      * @return mixed
      * @throws Exception
      */
@@ -152,6 +169,27 @@ class Sequence implements \IteratorAggregate
 
         if (!isset($r)) {
             throw new OutOfRangeException("Sequence is empty");
+        }
+
+        return $r;
+    }
+
+    /**
+     * @param Closure|null $fun
+     * @return mixed|null
+     */
+    public function lastOrNull(Closure $fun = null)
+    {
+        if ($fun) {
+            return $this->filter($fun)->lastOrNull();
+        }
+
+        foreach ($this->source as $item) {
+            $r = $item;
+        }
+
+        if (!isset($r)) {
+            return null;
         }
 
         return $r;
