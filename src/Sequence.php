@@ -36,6 +36,24 @@ class Sequence implements \IteratorAggregate
     }
 
     /**
+     * @param Iterator|array $iterator
+     * @return Sequence
+     */
+    public function plus($iterator): self
+    {
+        $iterator = function () use ($iterator) {
+            foreach ($this->source as $key => $item) {
+                yield $item;
+            }
+
+            foreach ($iterator as $key => $item) {
+                yield $item;
+            }
+        };
+        return new self($iterator());
+    }
+
+    /**
      * @param Closure $fun
      * @return Sequence
      */
@@ -79,7 +97,9 @@ class Sequence implements \IteratorAggregate
 
     public function filterNotEmpty(): self
     {
-        return $this->filter(function($a) { return !empty($a); });
+        return $this->filter(function ($a) {
+            return !empty($a);
+        });
     }
 
     /**
@@ -127,11 +147,11 @@ class Sequence implements \IteratorAggregate
      */
     public function distinctBy(Closure $selector)
     {
-        $iterator = function() use($selector) {
+        $iterator = function () use ($selector) {
             $exists = [];
             foreach ($this->source as $key => $val) {
                 $k = $selector($val, $key);
-                if(!isset($exists[$k])) {
+                if (!isset($exists[$k])) {
                     $exists[$k] = true;
                     yield $key => $val;
                 }
@@ -158,11 +178,11 @@ class Sequence implements \IteratorAggregate
      */
     public function sortBy(Closure $comparator)
     {
-        return $this->sortWith(function ($a, $b) use($comparator) {
+        return $this->sortWith(function ($a, $b) use ($comparator) {
             $av = $comparator($a);
             $bv = $comparator($b);
-            if($av == $bv) return 0;
-            if($av < $bv) return -1;
+            if ($av == $bv) return 0;
+            if ($av < $bv) return -1;
             return 1;
         });
     }
@@ -173,11 +193,11 @@ class Sequence implements \IteratorAggregate
      */
     public function sortDescBy(Closure $comparator)
     {
-        return $this->sortWith(function ($a, $b) use($comparator) {
+        return $this->sortWith(function ($a, $b) use ($comparator) {
             $av = $comparator($a);
             $bv = $comparator($b);
-            if($av == $bv) return 0;
-            if($av < $bv) return 1;
+            if ($av == $bv) return 0;
+            if ($av < $bv) return 1;
             return -1;
         });
     }
@@ -295,7 +315,7 @@ class Sequence implements \IteratorAggregate
         $result = [];
         foreach ($this->source as $key => $value) {
             $list = $action($value, $key);
-            if($list) {
+            if ($list) {
                 $result = array_merge($result, $list);
             }
         }
@@ -357,7 +377,7 @@ class Sequence implements \IteratorAggregate
     public function indexOf(Closure $predicate)
     {
         foreach ($this->source as $key => $value) {
-            if($predicate($value, $key)) {
+            if ($predicate($value, $key)) {
                 return $key;
             }
         }
@@ -373,14 +393,51 @@ class Sequence implements \IteratorAggregate
         return array_sum(iterator_to_array($this->source));
     }
 
+    public function sumBy()
+    {
+        //todo
+    }
+
     public function max()
     {
         return call_user_func_array('max', iterator_to_array($this->source));
     }
 
+    public function maxBy()
+    {
+        //todo
+    }
+
+    public function maxWith()
+    {
+
+    }
+
     public function min()
     {
         return call_user_func_array('min', iterator_to_array($this->source));
+    }
+
+    public function minBy()
+    {
+        //todo
+    }
+
+    public function minWith()
+    {
+        //todo
+    }
+
+    /**
+     * @param Closure|null $filter
+     * @return bool
+     */
+    public function none(Closure $filter = null)
+    {
+        if ($filter) {
+            return $this->filter($filter)->none();
+        }
+        return !$this->source->valid();
     }
 
     /**

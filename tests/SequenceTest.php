@@ -27,6 +27,14 @@ class SequenceTest extends TestCase
         $this->assertEquals($arr, $seq->toArray());
     }
 
+    function testPlus()
+    {
+        $this->assertEquals(
+            [1, 2, 3, 4],
+            Sequence::of([1, 2])->plus([3, 4])->toArray()
+        );
+    }
+
     function testMap()
     {
         $this->assertEquals(
@@ -40,7 +48,7 @@ class SequenceTest extends TestCase
     function testEach()
     {
         $r = 0;
-        Sequence::of([1, 2, 3])->each(function ($a) use(&$r) {
+        Sequence::of([1, 2, 3])->each(function ($a) use (&$r) {
             $r += $a;
         });
         $this->assertEquals(6, $r);
@@ -59,7 +67,7 @@ class SequenceTest extends TestCase
     function testFilterNotEmpty()
     {
         $this->assertEquals(
-            [0 => 1,2 => 2,3 => 3],
+            [0 => 1, 2 => 2, 3 => 3],
             Sequence::of([1, null, 2, 3, null])->filterNotEmpty()->toArray()
         );
     }
@@ -84,7 +92,9 @@ class SequenceTest extends TestCase
     {
         $this->assertEquals(
             [0 => 1, 2 => 3, 5 => 6, 8 => 9],
-            Sequence::of([1, 2, 3, 4, 5, 6, 7, 8, 9])->distinctBy(function($a) { return intval($a / 3); })->toArray()
+            Sequence::of([1, 2, 3, 4, 5, 6, 7, 8, 9])->distinctBy(function ($a) {
+                return intval($a / 3);
+            })->toArray()
         );
     }
 
@@ -139,7 +149,9 @@ class SequenceTest extends TestCase
      */
     function testFirstException()
     {
-        Sequence::of([1, 2, 3, 4, 5])->first(function ($a) { return $a > 5; });
+        Sequence::of([1, 2, 3, 4, 5])->first(function ($a) {
+            return $a > 5;
+        });
     }
 
     function testFirstOrNull()
@@ -186,7 +198,9 @@ class SequenceTest extends TestCase
      */
     function testLastException()
     {
-        Sequence::of([1, 2, 3, 4, 5])->last(function ($a) { return $a > 5; });
+        Sequence::of([1, 2, 3, 4, 5])->last(function ($a) {
+            return $a > 5;
+        });
     }
 
     function testLastOrNull()
@@ -236,7 +250,9 @@ class SequenceTest extends TestCase
     {
         $this->assertEquals(
             true,
-            Sequence::of([1, 2, 3])->all(function($a) { return $a < 5; })
+            Sequence::of([1, 2, 3])->all(function ($a) {
+                return $a < 5;
+            })
         );
     }
 
@@ -244,7 +260,9 @@ class SequenceTest extends TestCase
     {
         $this->assertEquals(
             false,
-            Sequence::of([1, 2, 3])->all(function($a) { return $a < 3; })
+            Sequence::of([1, 2, 3])->all(function ($a) {
+                return $a < 3;
+            })
         );
     }
 
@@ -252,7 +270,9 @@ class SequenceTest extends TestCase
     {
         $this->assertEquals(
             true,
-            Sequence::of([1, 2, 3])->any(function($a) { return $a > 1; })
+            Sequence::of([1, 2, 3])->any(function ($a) {
+                return $a > 1;
+            })
         );
     }
 
@@ -260,7 +280,9 @@ class SequenceTest extends TestCase
     {
         $this->assertEquals(
             false,
-            Sequence::of([1, 2, 3])->any(function($a) { return $a < 1; })
+            Sequence::of([1, 2, 3])->any(function ($a) {
+                return $a < 1;
+            })
         );
     }
 
@@ -292,7 +314,9 @@ class SequenceTest extends TestCase
                 0 => [2, 4],
                 1 => [1, 3, 5]
             ],
-            Sequence::of([1, 2, 3, 4, 5])->groupBy(function($a) { return $a['type']; })
+            Sequence::of([1, 2, 3, 4, 5])->groupBy(function ($a) {
+                return $a['type'];
+            })
         );
     }
 
@@ -300,12 +324,16 @@ class SequenceTest extends TestCase
     {
         $this->assertEquals(
             1,
-            Sequence::of([1, 2, 3, 4, 5])->indexOf(function($a) { return $a == 2; })
+            Sequence::of([1, 2, 3, 4, 5])->indexOf(function ($a) {
+                return $a == 2;
+            })
         );
 
         $this->assertEquals(
             -1,
-            Sequence::of([1, 2, 3, 4, 5])->indexOf(function($a) { return $a == 0; })
+            Sequence::of([1, 2, 3, 4, 5])->indexOf(function ($a) {
+                return $a == 0;
+            })
         );
     }
 
@@ -338,11 +366,36 @@ class SequenceTest extends TestCase
      */
     function testMin()
     {
-        {
-            $this->assertEquals(
-                2,
-                Sequence::of([1, 2, 3, 5, 4])->skip(1)->min()
-            );
-        }
+        $this->assertEquals(
+            2,
+            Sequence::of([1, 2, 3, 5, 4])->skip(1)->min()
+        );
+    }
+
+    function testNone()
+    {
+        $this->assertEquals(
+            true,
+            Sequence::of([1])->skip(1)->none()
+        );
+
+        $this->assertEquals(
+            false,
+            Sequence::of([1, 2])->skip(1)->none()
+        );
+
+        $this->assertEquals(
+            true,
+            Sequence::of([1, 2])->none(function ($a) {
+                return $a > 2;
+            })
+        );
+
+        $this->assertEquals(
+            false,
+            Sequence::of([1, 2])->none(function ($a) {
+                return $a >= 2;
+            })
+        );
     }
 }
