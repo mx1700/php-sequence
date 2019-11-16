@@ -199,7 +199,7 @@ class Sequence implements IteratorAggregate
      */
     public function sortWith(Closure $comparator)
     {
-        $list = iterator_to_array($this->source);
+        $list = iterator_to_array($this->source, false);
         usort($list, $comparator);
         return new self($list);
     }
@@ -522,7 +522,7 @@ class Sequence implements IteratorAggregate
      */
     public function sum()
     {
-        return array_sum(iterator_to_array($this->source));
+        return array_sum(iterator_to_array($this->source, false));
     }
 
     public function sumBy()
@@ -532,7 +532,7 @@ class Sequence implements IteratorAggregate
 
     public function max()
     {
-        return call_user_func_array('max', iterator_to_array($this->source));
+        return call_user_func_array('max', iterator_to_array($this->source, false));
     }
 
     public function maxBy()
@@ -547,7 +547,7 @@ class Sequence implements IteratorAggregate
 
     public function min()
     {
-        return call_user_func_array('min', iterator_to_array($this->source));
+        return call_user_func_array('min', iterator_to_array($this->source, false));
     }
 
     public function minBy()
