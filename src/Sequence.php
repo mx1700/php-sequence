@@ -1,27 +1,33 @@
 <?php
 namespace mx1700;
 
+use ArrayIterator;
+use Closure;
+use Exception;
+use Iterator;
+use OutOfRangeException;
+
 class Sequence implements \IteratorAggregate
 {
     /**
-     * @var \Iterator
+     * @var Iterator
      */
     private $source;
 
     /**
      * Sequence constructor.
-     * @param \Iterator|array $iterator
+     * @param Iterator|array $iterator
      */
     public function __construct($iterator)
     {
         if (is_array($iterator)) {
-            $iterator = new \ArrayIterator($iterator);
+            $iterator = new ArrayIterator($iterator);
         }
         $this->source = $iterator;
     }
 
     /**
-     * @param \Iterator|array $iterator
+     * @param Iterator|array $iterator
      * @return Sequence
      */
     static function of($iterator): self
@@ -30,10 +36,10 @@ class Sequence implements \IteratorAggregate
     }
 
     /**
-     * @param \Closure $fun
+     * @param Closure $fun
      * @return Sequence
      */
-    public function map(\Closure $fun): self
+    public function map(Closure $fun): self
     {
         $iterator = function () use ($fun) {
             foreach ($this->source as $key => $item) {
@@ -44,10 +50,10 @@ class Sequence implements \IteratorAggregate
     }
 
     /**
-     * @param \Closure $fun
+     * @param Closure $fun
      * @return Sequence
      */
-    public function filter(\Closure $fun): self
+    public function filter(Closure $fun): self
     {
         $iterator = function () use ($fun) {
             foreach ($this->source as $key => $item) {
@@ -112,29 +118,29 @@ class Sequence implements \IteratorAggregate
     }
 
     /**
-     * @param \Closure|null $fun
+     * @param Closure|null $fun
      * @return mixed
-     * @throws \Exception
+     * @throws Exception
      */
-    public function first(\Closure $fun = null)
+    public function first(Closure $fun = null)
     {
         if ($fun) {
             return $this->filter($fun)->first();
         }
 
         if (!$this->source->valid()) {
-            throw new \Exception("Sequence is empty");
+            throw new OutOfRangeException("Sequence is empty");
         }
 
         return $this->source->current();
     }
 
     /**
-     * @param \Closure|null $fun
+     * @param Closure|null $fun
      * @return mixed
-     * @throws \Exception
+     * @throws Exception
      */
-    public function last(\Closure $fun = null)
+    public function last(Closure $fun = null)
     {
         if ($fun) {
             return $this->filter($fun)->last();
@@ -145,18 +151,18 @@ class Sequence implements \IteratorAggregate
         }
 
         if (!isset($r)) {
-            throw new \Exception("Sequence is empty");
+            throw new OutOfRangeException("Sequence is empty");
         }
 
         return $r;
     }
 
     /**
-     * @param \Closure $action
+     * @param Closure $action
      * @param null $initial
      * @return mixed|null
      */
-    public function reduce(\Closure $action, $initial = null)
+    public function reduce(Closure $action, $initial = null)
     {
         $result = $initial;
         foreach ($this->source as $key => $value) {
@@ -166,10 +172,10 @@ class Sequence implements \IteratorAggregate
     }
 
     /**
-     * @param \Closure $action
+     * @param Closure $action
      * @return bool
      */
-    public function all(\Closure $action): bool
+    public function all(Closure $action): bool
     {
         foreach ($this->source as $key => $value) {
             if (!$action($value, $key)) {
@@ -180,10 +186,10 @@ class Sequence implements \IteratorAggregate
     }
 
     /**
-     * @param \Closure $action
+     * @param Closure $action
      * @return bool
      */
-    public function any(\Closure $action): bool
+    public function any(Closure $action): bool
     {
         foreach ($this->source as $key => $value) {
             if ($action($value, $key)) {
@@ -194,10 +200,10 @@ class Sequence implements \IteratorAggregate
     }
 
     /**
-     * @param \Closure|null $action
+     * @param Closure|null $action
      * @return int
      */
-    public function count(\Closure $action = null): int
+    public function count(Closure $action = null): int
     {
         if ($action) {
             return $this->filter($action)->count();
@@ -206,7 +212,7 @@ class Sequence implements \IteratorAggregate
         return iterator_count($this->source);
     }
 
-    public function groupBy(\Closure $action): array
+    public function groupBy(Closure $action): array
     {
         $result = [];
         foreach ($this->source as $key => $item) {
