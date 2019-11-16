@@ -132,4 +132,52 @@ class SequenceTest extends TestCase
             Sequence::of([1, 2, 3])->all(function($a) { return $a < 3; })
         );
     }
+
+    function testAny()
+    {
+        $this->assertEquals(
+            true,
+            Sequence::of([1, 2, 3])->any(function($a) { return $a > 1; })
+        );
+    }
+
+    function testAnyFalse()
+    {
+        $this->assertEquals(
+            false,
+            Sequence::of([1, 2, 3])->any(function($a) { return $a < 1; })
+        );
+    }
+
+    function testCount()
+    {
+        $this->assertEquals(
+            3,
+            Sequence::of([1, 2, 3])->count()
+        );
+    }
+
+    /**
+     * @depends testFilter
+     */
+    function testCountFilter()
+    {
+        $this->assertEquals(
+            2,
+            Sequence::of([1, 2, 3])->count(function ($a) {
+                return $a > 1;
+            })
+        );
+    }
+
+    function testGroup()
+    {
+        $this->assertEquals(
+            [
+                0 => [2, 4],
+                1 => [1, 3, 5]
+            ],
+            Sequence::of([1, 2, 3, 4, 5])->groupBy(function($a) { return $a % 2; })
+        );
+    }
 }

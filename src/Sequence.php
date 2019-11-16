@@ -1,7 +1,8 @@
 <?php
 namespace mx1700;
 
-class Sequence implements \IteratorAggregate {
+class Sequence implements \IteratorAggregate
+{
     /**
      * @var \Iterator
      */
@@ -13,7 +14,7 @@ class Sequence implements \IteratorAggregate {
      */
     public function __construct($iterator)
     {
-        if(is_array($iterator)) {
+        if (is_array($iterator)) {
             $iterator = new \ArrayIterator($iterator);
         }
         $this->source = $iterator;
@@ -23,7 +24,8 @@ class Sequence implements \IteratorAggregate {
      * @param \Iterator|array $iterator
      * @return Sequence
      */
-    static function of($iterator) {
+    static function of($iterator): self
+    {
         return new self($iterator);
     }
 
@@ -31,9 +33,9 @@ class Sequence implements \IteratorAggregate {
      * @param \Closure $fun
      * @return Sequence
      */
-    public function map(\Closure $fun)
+    public function map(\Closure $fun): self
     {
-        $iterator = function() use($fun) {
+        $iterator = function () use ($fun) {
             foreach ($this->source as $key => $item) {
                 yield $key => $fun($item, $key);
             }
@@ -45,11 +47,11 @@ class Sequence implements \IteratorAggregate {
      * @param \Closure $fun
      * @return Sequence
      */
-    public function filter(\Closure $fun)
+    public function filter(\Closure $fun): self
     {
-        $iterator = function() use($fun) {
+        $iterator = function () use ($fun) {
             foreach ($this->source as $key => $item) {
-                if($fun($item, $key)) {
+                if ($fun($item, $key)) {
                     yield $key => $item;
                 }
             }
@@ -62,12 +64,12 @@ class Sequence implements \IteratorAggregate {
      * @param int $n
      * @return Sequence
      */
-    public function skip(int $n)
+    public function skip(int $n): self
     {
-        $iterator = function() use($n) {
+        $iterator = function () use ($n) {
             $i = 0;
             foreach ($this->source as $key => $item) {
-                if($i >= $n) {
+                if ($i >= $n) {
                     yield $key => $item;
                 }
                 $i++;
@@ -81,12 +83,12 @@ class Sequence implements \IteratorAggregate {
      * @param $count
      * @return Sequence
      */
-    public function limit($count)
+    public function limit(int $count): self
     {
-        $iterator = function() use($count) {
+        $iterator = function () use ($count) {
             $i = 1;
             foreach ($this->source as $key => $item) {
-                if($i > $count) {
+                if ($i > $count) {
                     break;
                 }
                 yield $key => $item;
@@ -100,7 +102,8 @@ class Sequence implements \IteratorAggregate {
     /**
      * @return array
      */
-    public function toArray() {
+    public function toArray(): array
+    {
         $result = [];
         foreach ($this->source as $key => $item) {
             $result[$key] = $item;
@@ -113,12 +116,13 @@ class Sequence implements \IteratorAggregate {
      * @return mixed
      * @throws \Exception
      */
-    public function first(\Closure $fun = null) {
-        if($fun) {
+    public function first(\Closure $fun = null)
+    {
+        if ($fun) {
             return $this->filter($fun)->first();
         }
 
-        if(!$this->source->valid()) {
+        if (!$this->source->valid()) {
             throw new \Exception("Sequence is empty");
         }
 
@@ -132,7 +136,7 @@ class Sequence implements \IteratorAggregate {
      */
     public function last(\Closure $fun = null)
     {
-        if($fun) {
+        if ($fun) {
             return $this->filter($fun)->last();
         }
 
@@ -140,7 +144,7 @@ class Sequence implements \IteratorAggregate {
             $r = $item;
         }
 
-        if(!isset($r)) {
+        if (!isset($r)) {
             throw new \Exception("Sequence is empty");
         }
 
@@ -165,10 +169,10 @@ class Sequence implements \IteratorAggregate {
      * @param \Closure $action
      * @return bool
      */
-    public function all(\Closure $action)
+    public function all(\Closure $action): bool
     {
         foreach ($this->source as $key => $value) {
-            if(!$action($value, $key)) {
+            if (!$action($value, $key)) {
                 return false;
             }
         }
@@ -179,10 +183,10 @@ class Sequence implements \IteratorAggregate {
      * @param \Closure $action
      * @return bool
      */
-    public function any(\Closure $action)
+    public function any(\Closure $action): bool
     {
         foreach ($this->source as $key => $value) {
-            if($action($value, $key)) {
+            if ($action($value, $key)) {
                 return true;
             }
         }
@@ -193,13 +197,23 @@ class Sequence implements \IteratorAggregate {
      * @param \Closure|null $action
      * @return int
      */
-    public function count(\Closure $action = null)
+    public function count(\Closure $action = null): int
     {
-        if($action) {
+        if ($action) {
             return $this->filter($action)->count();
         }
 
         return iterator_count($this->source);
+    }
+
+    public function groupBy(\Closure $action): array
+    {
+        $result = [];
+        foreach ($this->source as $key => $item) {
+            $key = $action($item, $key);
+            $result[$key][] = $item;
+        }
+        return $result;
     }
 
     /**
