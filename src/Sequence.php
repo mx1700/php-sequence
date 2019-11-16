@@ -5,9 +5,10 @@ use ArrayIterator;
 use Closure;
 use Exception;
 use Iterator;
+use IteratorAggregate;
 use OutOfRangeException;
 
-class Sequence implements \IteratorAggregate
+class Sequence implements IteratorAggregate
 {
     /**
      * @var Iterator
@@ -412,9 +413,31 @@ class Sequence implements \IteratorAggregate
         return new self($result);
     }
 
-    public function join()
+    /**
+     * @param iterator|array $out
+     * @param Closure $outKeySelector
+     * @param Closure $innerKeySelector
+     * @param Closure $resultMap
+     * @return Sequence
+     */
+    public function join($out, Closure $outKeySelector, Closure $innerKeySelector, Closure $resultMap)
     {
-        //todo:
+        $iterator = function () use ($out, $outKeySelector, $innerKeySelector, $resultMap) {
+            foreach ($this->source as $key => $inner) {
+                $innerKey = $innerKeySelector($inner, $key);
+                $s = self::of($out)->filter(function ($out, $outKey) use ($innerKey, $outKeySelector) {
+                    $outKey1 = $outKeySelector($out, $outKey);
+                    return $innerKey == $outKey1;
+                })->map(function($out) use($inner, $resultMap) {
+                    return $resultMap($inner, $out);
+                });
+                foreach ($s as $item) {
+                    yield $item;
+                }
+            }
+        };
+
+        return new self($iterator());
     }
 
     /**

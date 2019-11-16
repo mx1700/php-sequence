@@ -365,6 +365,36 @@ class SequenceTest extends TestCase
         );
     }
 
+    function testJoin()
+    {
+        $inner = [2, 1, 3, 2];
+        $out = [1 => '一', 2 => '二', 3 => '三'];
+        $s = Sequence::of($inner)
+            ->join(
+                $out,
+                function ($out, $outKey) {
+                    return $outKey;
+                },
+                function ($inner, $innerKey) {
+                    return $inner;
+                },
+                function ($inner, $out) {
+                    return [$inner, $out];
+                }
+            )
+            ->toArray();
+
+        $this->assertEquals(
+            [
+                [2, '二'],
+                [1, '一'],
+                [3, '三'],
+                [2, '二']
+            ],
+            $s
+        );
+    }
+
     function testIndexOf()
     {
         $this->assertEquals(
