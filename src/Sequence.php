@@ -1,25 +1,26 @@
 <?php
+namespace mx1700;
 
-class Sequence implements IteratorAggregate {
+class Sequence implements \IteratorAggregate {
     /**
-     * @var Iterator
+     * @var \Iterator
      */
     private $source;
 
     /**
      * Sequence constructor.
-     * @param Iterator|array $iterator
+     * @param \Iterator|array $iterator
      */
     public function __construct($iterator)
     {
         if(is_array($iterator)) {
-            $iterator = new ArrayIterator($iterator);
+            $iterator = new \ArrayIterator($iterator);
         }
         $this->source = $iterator;
     }
 
     /**
-     * @param Iterator|array $iterator
+     * @param \Iterator|array $iterator
      * @return Sequence
      */
     static function of($iterator) {
@@ -27,10 +28,10 @@ class Sequence implements IteratorAggregate {
     }
 
     /**
-     * @param Closure $fun
+     * @param \Closure $fun
      * @return Sequence
      */
-    public function map(Closure $fun)
+    public function map(\Closure $fun)
     {
         $iterator = function() use($fun) {
             foreach ($this->source as $key => $item) {
@@ -41,10 +42,10 @@ class Sequence implements IteratorAggregate {
     }
 
     /**
-     * @param Closure $fun
+     * @param \Closure $fun
      * @return Sequence
      */
-    public function filter(Closure $fun)
+    public function filter(\Closure $fun)
     {
         $iterator = function() use($fun) {
             foreach ($this->source as $key => $item) {
@@ -108,33 +109,50 @@ class Sequence implements IteratorAggregate {
     }
 
     /**
-     * @param Closure|null $fun
+     * @param \Closure|null $fun
      * @return mixed
-     * @throws Exception
+     * @throws \Exception
      */
-    public function first(Closure $fun = null) {
+    public function first(\Closure $fun = null) {
         if($fun) {
             return $this->filter($fun)->first();
         }
 
         if(!$this->source->valid()) {
-            throw new Exception("Not found first value");
+            throw new \Exception("Sequence is empty");
         }
 
         return $this->source->current();
     }
 
-    public function last()
+    /**
+     * @param \Closure|null $fun
+     * @return mixed
+     * @throws \Exception
+     */
+    public function last(\Closure $fun = null)
     {
+        if($fun) {
+            return $this->filter($fun)->last();
+        }
 
+        foreach ($this->source as $item) {
+            $r = $item;
+        }
+
+        if(!isset($r)) {
+            throw new \Exception("Sequence is empty");
+        }
+
+        return $r;
     }
 
     /**
-     * @param Closure $action
+     * @param \Closure $action
      * @param null $initial
      * @return mixed|null
      */
-    public function reduce(Closure $action, $initial = null)
+    public function reduce(\Closure $action, $initial = null)
     {
         $result = $initial;
         foreach ($this->source as $key => $value) {
@@ -144,10 +162,10 @@ class Sequence implements IteratorAggregate {
     }
 
     /**
-     * @param Closure $action
+     * @param \Closure $action
      * @return bool
      */
-    public function all(Closure $action)
+    public function all(\Closure $action)
     {
         foreach ($this->source as $key => $value) {
             if(!$action($value, $key)) {
@@ -158,10 +176,10 @@ class Sequence implements IteratorAggregate {
     }
 
     /**
-     * @param Closure $action
+     * @param \Closure $action
      * @return bool
      */
-    public function any(Closure $action)
+    public function any(\Closure $action)
     {
         foreach ($this->source as $key => $value) {
             if($action($value, $key)) {
@@ -172,10 +190,10 @@ class Sequence implements IteratorAggregate {
     }
 
     /**
-     * @param Closure|null $action
+     * @param \Closure|null $action
      * @return int
      */
-    public function count(Closure $action = null)
+    public function count(\Closure $action = null)
     {
         if($action) {
             return $this->filter($action)->count();
@@ -187,7 +205,7 @@ class Sequence implements IteratorAggregate {
     /**
      * Retrieve an external iterator
      * @link https://php.net/manual/en/iteratoraggregate.getiterator.php
-     * @return Traversable An instance of an object implementing <b>Iterator</b> or
+     * @return \Traversable An instance of an object implementing <b>Iterator</b> or
      * <b>Traversable</b>
      * @since 5.0.0
      */
