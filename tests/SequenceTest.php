@@ -72,6 +72,25 @@ class SequenceTest extends TestCase
         );
     }
 
+    /**
+     * @depends testFilterNotEmpty
+     */
+    function testValues()
+    {
+        $this->assertEquals(
+            [1, 2, 3],
+            Sequence::of([1, null, 2, 3, null])->filterNotEmpty()->values()->toArray()
+        );
+    }
+
+    function testKeys()
+    {
+        $this->assertEquals(
+            [0, 2, 3],
+            Sequence::of([1, null, 2, 3, null])->filterNotEmpty()->keys()->toArray()
+        );
+    }
+
     function testSkip()
     {
         $this->assertEquals(

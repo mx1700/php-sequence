@@ -95,11 +95,42 @@ class Sequence implements \IteratorAggregate
         return new self($iterator());
     }
 
+    /**
+     * @return Sequence
+     */
     public function filterNotEmpty(): self
     {
         return $this->filter(function ($a) {
             return !empty($a);
         });
+    }
+
+    /**
+     * @return Sequence
+     */
+    public function values(): self
+    {
+        $iterator = function () {
+            foreach ($this->source as $item) {
+               yield $item;
+            }
+        };
+
+        return new self($iterator());
+    }
+
+    /**
+     * @return Sequence
+     */
+    public function keys(): self
+    {
+        $iterator = function () {
+            foreach ($this->source as $key => $item) {
+                yield $key;
+            }
+        };
+
+        return new self($iterator());
     }
 
     /**
