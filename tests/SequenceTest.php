@@ -308,4 +308,41 @@ class SequenceTest extends TestCase
             Sequence::of([1, 2, 3, 4, 5])->indexOf(function($a) { return $a == 0; })
         );
     }
+
+    /**
+     * @depends testSkip
+     */
+    function testSum()
+    {
+        $this->assertEquals(
+            12,
+            Sequence::of([1, 2, 3, 4, 5])->skip(2)->sum()
+        );
+    }
+
+    /**
+     * @depends testSkip
+     */
+    function testMax()
+    {
+        {
+            $this->assertEquals(
+                5,
+                Sequence::of([6, 2, 3, 5, 4])->skip(1)->max()
+            );
+        }
+    }
+
+    /**
+     * @depends testSkip
+     */
+    function testMin()
+    {
+        {
+            $this->assertEquals(
+                2,
+                Sequence::of([1, 2, 3, 5, 4])->skip(1)->min()
+            );
+        }
+    }
 }

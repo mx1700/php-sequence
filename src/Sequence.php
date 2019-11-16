@@ -366,6 +366,24 @@ class Sequence implements \IteratorAggregate
     }
 
     /**
+     * @return float|int
+     */
+    public function sum()
+    {
+        return array_sum(iterator_to_array($this->source));
+    }
+
+    public function max()
+    {
+        return call_user_func_array('max', iterator_to_array($this->source));
+    }
+
+    public function min()
+    {
+        return call_user_func_array('min', iterator_to_array($this->source));
+    }
+
+    /**
      * Retrieve an external iterator
      * @link https://php.net/manual/en/iteratoraggregate.getiterator.php
      * @return \Traversable An instance of an object implementing <b>Iterator</b> or
