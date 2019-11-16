@@ -205,6 +205,16 @@ class SequenceTest extends TestCase
         );
     }
 
+    function testFlatMap()
+    {
+        $this->assertEquals(
+            [1, 2, 2, 3, 3, 3],
+            Sequence::of([1, 2, 3])->flatMap(function ($a) {
+                return array_fill(0, $a, $a);
+            })
+        );
+    }
+
     function testAll()
     {
         $this->assertEquals(

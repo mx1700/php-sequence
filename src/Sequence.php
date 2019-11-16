@@ -245,6 +245,23 @@ class Sequence implements \IteratorAggregate
 
     /**
      * @param Closure $action
+     * @return array
+     */
+    public function flatMap(Closure $action)
+    {
+        $result = [];
+        foreach ($this->source as $key => $value) {
+            $list = $action($value, $key);
+            if($list) {
+                $result = array_merge($result, $list);
+            }
+        }
+
+        return $result;
+    }
+
+    /**
+     * @param Closure $action
      * @return bool
      */
     public function all(Closure $action): bool
