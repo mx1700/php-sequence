@@ -39,7 +39,7 @@ class Sequence implements \IteratorAggregate
      * @param Iterator|array $iterator
      * @return Sequence
      */
-    public function plus($iterator): self
+    public function add($iterator): self
     {
         $iterator = function () use ($iterator) {
             foreach ($this->source as $key => $item) {
