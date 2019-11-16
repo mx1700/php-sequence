@@ -112,7 +112,7 @@ class Sequence implements \IteratorAggregate
     {
         $iterator = function () {
             foreach ($this->source as $item) {
-               yield $item;
+                yield $item;
             }
         };
 
@@ -343,17 +343,18 @@ class Sequence implements \IteratorAggregate
      */
     public function flatMap(Closure $action): self
     {
-        $result = [];
-        foreach ($this->source as $key => $value) {
-            $list = $action($value, $key);
-            if ($list) {
-                $result = array_merge($result, $list);
+        $iterator = function () use ($action) {
+            foreach ($this->source as $key => $value) {
+                $list = $action($value, $key);
+                if ($list) {
+                    foreach ($list as $item) {
+                        yield $item;
+                    }
+                }
             }
-        }
+        };
 
-        //todo: lazy
-
-        return new self($result);
+        return new self($iterator());
     }
 
     /**
