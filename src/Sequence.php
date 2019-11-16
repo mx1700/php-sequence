@@ -440,6 +440,31 @@ class Sequence implements IteratorAggregate
         return new self($iterator());
     }
 
+    public function leftJoin($out, Closure $outKeySelector, Closure $innerKeySelector, Closure $resultMap) {
+        $iterator = function () use ($out, $outKeySelector, $innerKeySelector, $resultMap) {
+            foreach ($this->source as $key => $inner) {
+                $innerKey = $innerKeySelector($inner, $key);
+                $s = self::of($out)->filter(function ($out, $outKey) use ($innerKey, $outKeySelector) {
+                    $outKey1 = $outKeySelector($out, $outKey);
+                    return $innerKey == $outKey1;
+                })->map(function($out) use($inner, $resultMap) {
+                    return $resultMap($inner, $out);
+                });
+
+                $hasOne = false;
+                foreach ($s as $item) {
+                    $hasOne = true;
+                    yield $item;
+                }
+
+                if(!$hasOne) {
+                    yield $resultMap($inner, null);
+                }
+            }
+        };
+
+        return new self($iterator());    }
+
     /**
      * @param iterator|array $out
      * @param Closure $outKeySelector

@@ -367,7 +367,7 @@ class SequenceTest extends TestCase
 
     function testJoin()
     {
-        $inner = [2, 1, 3, 2];
+        $inner = [2, 1, 3, 2, 5];
         $out = [1 => '一', 2 => '二', 3 => '三'];
         $s = Sequence::of($inner)
             ->join(
@@ -390,6 +390,47 @@ class SequenceTest extends TestCase
                 [1, '一'],
                 [3, '三'],
                 [2, '二']
+            ],
+            $s
+        );
+    }
+
+    function testLeftJoin()
+    {
+        $inner = [[2], [1], [3], [2], [5]];
+        $out = [[1, '一'], [2,'二'], [3,'三']];
+
+        Sequence::of($inner)->flatMap(function ($inner) use($out) {
+            $r = Sequence::of($out)->filter(function($out) use($inner) { return $out[0] == $inner[0]; });
+            if($r->none()) {
+                return [$inner[0], null];
+            } else {
+                yield from $r->map(function() {});
+            }
+        });
+
+        $s = Sequence::of($inner)
+            ->leftJoin(
+                $out,
+                function ($out, $outKey) {
+                    return $out[0];
+                },
+                function ($inner, $innerKey) {
+                    return $inner[0];
+                },
+                function ($inner, $out) {
+                    return [$inner[0], $out[1] ?? null];
+                }
+            )
+            ->toArray();
+
+        $this->assertEquals(
+            [
+                [2, '二'],
+                [1, '一'],
+                [3, '三'],
+                [2, '二'],
+                [5, null],
             ],
             $s
         );
