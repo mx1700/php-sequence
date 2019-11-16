@@ -50,6 +50,17 @@ class Sequence implements \IteratorAggregate
     }
 
     /**
+     * @param Closure $action
+     * @return void
+     */
+    public function each(Closure $action)
+    {
+        foreach ($this->source as $key => $val) {
+            $action($val, $key);
+        }
+    }
+
+    /**
      * @param Closure $fun
      * @return Sequence
      */
@@ -110,6 +121,30 @@ class Sequence implements \IteratorAggregate
         return new self($iterator());
     }
 
+    /**
+     * @param Closure $selector
+     * @return Sequence
+     */
+    public function distinctBy(Closure $selector)
+    {
+        $iterator = function() use($selector) {
+            $exists = [];
+            foreach ($this->source as $key => $val) {
+                $k = $selector($val, $key);
+                if(!isset($exists[$k])) {
+                    $exists[$k] = true;
+                    yield $key => $val;
+                }
+            }
+        };
+
+        return new self($iterator());
+    }
+
+    /**
+     * @param Closure $comparator
+     * @return Sequence
+     */
     public function sortWith(Closure $comparator)
     {
         $list = iterator_to_array($this->source);
@@ -117,6 +152,10 @@ class Sequence implements \IteratorAggregate
         return new self($list);
     }
 
+    /**
+     * @param Closure $comparator
+     * @return Sequence
+     */
     public function sortBy(Closure $comparator)
     {
         return $this->sortWith(function ($a, $b) use($comparator) {
@@ -128,6 +167,10 @@ class Sequence implements \IteratorAggregate
         });
     }
 
+    /**
+     * @param Closure $comparator
+     * @return Sequence
+     */
     public function sortDescBy(Closure $comparator)
     {
         return $this->sortWith(function ($a, $b) use($comparator) {

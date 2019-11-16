@@ -37,6 +37,15 @@ class SequenceTest extends TestCase
         );
     }
 
+    function testEach()
+    {
+        $r = 0;
+        Sequence::of([1, 2, 3])->each(function ($a) use(&$r) {
+            $r += $a;
+        });
+        $this->assertEquals(6, $r);
+    }
+
     function testFilter()
     {
         $this->assertEquals(
@@ -68,6 +77,14 @@ class SequenceTest extends TestCase
         $this->assertEquals(
             [1, 2, 3],
             Sequence::of([1, 2, 3, 4, 5])->limit(3)->toArray()
+        );
+    }
+
+    function testDistinctBy()
+    {
+        $this->assertEquals(
+            [0 => 1, 2 => 3, 5 => 6, 8 => 9],
+            Sequence::of([1, 2, 3, 4, 5, 6, 7, 8, 9])->distinctBy(function($a) { return intval($a / 3); })->toArray()
         );
     }
 
