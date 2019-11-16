@@ -14,7 +14,7 @@ class SequenceTest extends TestCase
         $this->assertEquals($list, $s->toArray());
     }
 
-    function testInitGar()
+    function testInitGenerator()
     {
         $g = function () {
             for ($i = 0; $i < 10; $i++) {
