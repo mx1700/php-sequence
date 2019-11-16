@@ -359,6 +359,23 @@ class Sequence implements IteratorAggregate
     }
 
     /**
+     * @param iterator|array $iterator
+     * @return Sequence
+     */
+    public function product($iterator)
+    {
+        $iterator = function () use($iterator) {
+            foreach ($this->source as $item) {
+                foreach ($iterator as $item2) {
+                    yield [$item, $item2];
+                }
+            }
+        };
+
+        return new self($iterator());
+    }
+
+    /**
      * @param Closure $action
      * @return bool
      */

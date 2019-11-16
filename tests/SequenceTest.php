@@ -265,6 +265,14 @@ class SequenceTest extends TestCase
         );
     }
 
+    function testProduct()
+    {
+        $this->assertEquals(
+            [[1, 3], [1, 4], [2, 3], [2, 4]],
+            Sequence::of([1, 2])->product([3, 4])->toArray()
+        );
+    }
+
     function testAll()
     {
         $this->assertEquals(
