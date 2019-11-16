@@ -405,6 +405,35 @@ class Sequence implements \IteratorAggregate
         return $result;
     }
 
+    public function join()
+    {
+        //todo:
+    }
+
+    /**
+     * @param iterator|array $out
+     * @param Closure $outKeySelector
+     * @param Closure $innerKeySelector
+     * @param Closure $resultMap
+     * @return Sequence
+     */
+    public function groupJoin($out, Closure $outKeySelector, Closure $innerKeySelector, Closure $resultMap): self
+    {
+        $iterator = function () use ($out, $outKeySelector, $innerKeySelector, $resultMap) {
+            foreach ($this->source as $key => $inner) {
+                $innerKey = $innerKeySelector($inner, $key);
+                $group = self::of($out)->filter(function ($out, $outKey) use ($innerKey, $outKeySelector) {
+                    $outKey1 = $outKeySelector($out, $outKey);
+                    return $innerKey == $outKey1;
+                });
+                yield $key => $resultMap($inner, $group);
+            }
+        };
+
+        return new self($iterator());
+
+    }
+
     public function indexOf(Closure $predicate)
     {
         foreach ($this->source as $key => $value) {

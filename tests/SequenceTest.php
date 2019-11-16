@@ -339,6 +339,32 @@ class SequenceTest extends TestCase
         );
     }
 
+    function testGroupJoin()
+    {
+        $l = [11, 12, 13, 25, 21, 34, 30];
+        $r = Sequence::of([1, 2, 3, 4])->groupJoin(
+            $l,
+            function ($a) {
+                return intval($a / 10);
+            },
+            function ($a) {
+                return $a;
+            },
+            function ($inner, Sequence $outGroup) {
+                return [$inner, $outGroup->values()->toArray()];
+            }
+        )->toArray();
+
+        $this->assertEquals(
+            [
+                [1, [11,12,13]],
+                [2, [25, 21]],
+                [3, [34, 30]],
+                [4, []]
+            ], $r
+        );
+    }
+
     function testIndexOf()
     {
         $this->assertEquals(
